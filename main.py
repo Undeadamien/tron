@@ -12,6 +12,7 @@ P1 = {
         "right": pygame.K_d,
     },
 }
+
 P2 = {
     "color": "lightpink",
     "control": {
@@ -68,34 +69,44 @@ class Game:
         self.mainloop()
         pygame.quit()
 
-    def mainloop(self):
-        while self.running:
-            self.clock.tick(self.fps)
+    def handle_paused_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                self.paused = False
 
-            if self.paused:
-                for event in pygame.event.get():
-                    if event.type == pygame.KEYDOWN:
-                        self.paused = False
-                continue
+    def handle_game_over_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.running = False
 
-            if self.over:
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        self.running = False
-                continue
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.running = False
+    def handle_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.running = False
+            else:
                 for player in self.players:
                     player.handle_event(event)
 
-            for player in self.players:
-                player.update()
+    def update_game_logics(self):
+        for player in self.players:
+            player.update()
+        if any(player.has_collided() for player in self.players):
+            self.over = True
 
-            if any(player.has_collided() for player in self.players):
-                self.over = True
+    def mainloop(self):
+        while self.running:
+            if self.paused:
+                self.handle_paused_events()
+                continue
 
+            if self.over:
+                self.handle_game_over_events()
+                continue
+
+            self.handle_events()
+            self.update_game_logics()
+
+            self.clock.tick(self.fps)
             pygame.display.update()
 
 

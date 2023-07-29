@@ -13,7 +13,7 @@ class Player:
         self.collided = False
         self.controls = controls
 
-    def rotate(self, direction):
+    def change_direction(self, direction):
         # return if vectors act on the same direction (0,-1) and (0,1)
         if self.direction.value[0] == direction.value[0]:
             return
@@ -26,16 +26,9 @@ class Player:
 
     def render(self):
         pygame.draw.rect(self.surface, self.color, self.rect)
-        if self.collided:
-            pygame.draw.circle(
-                self.surface,
-                self.color,
-                self.rect.center,
-                self.rect.width * 1.5,
-            )
 
     def check_collision(self):
-        # determine the collision points for the next position
+        # determine where the two front corner will be
         if self.direction == Direction.LEFT:
             new_rect = self.rect.move(-1, 0)
             points = [new_rect.topleft, new_rect.bottomleft]
@@ -65,13 +58,13 @@ class Player:
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key == self.controls.get("up"):
-                self.rotate(Direction.UP)
+                self.change_direction(Direction.UP)
             elif event.key == self.controls.get("down"):
-                self.rotate(Direction.DOWN)
+                self.change_direction(Direction.DOWN)
             elif event.key == self.controls.get("left"):
-                self.rotate(Direction.LEFT)
+                self.change_direction(Direction.LEFT)
             elif event.key == self.controls.get("right"):
-                self.rotate(Direction.RIGHT)
+                self.change_direction(Direction.RIGHT)
 
     def update(self):
         self.move()
